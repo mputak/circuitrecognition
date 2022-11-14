@@ -1,0 +1,9 @@
+* C:\Users\Marko\PycharmProjects\zavrsni\ltspice_final.asc
+R1 N002 N001 10000
+R2 N002 N001 15000
+V3 N001 0 20
+C1 N002 N001 0.01
+L3 N002 0 0.01
+.tran 20
+.backanno
+.end
