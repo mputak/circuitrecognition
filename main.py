@@ -6,8 +6,6 @@ import pandas as pd
 import tkinter as tk
 import tkinter.filedialog as fd
 from data_processing import Process
-# TODO: Fix updating for the filepaths in main or make another method to call filepath values in class and call in main.
-#       Output of the file_explorer should be fed into the model inference.
 
 
 class MainWindow(tk.Tk):
@@ -39,7 +37,6 @@ class MainWindow(tk.Tk):
 
 # TODO: Create requirements.txt that user needs to pip install!
 #       Create simple GUI for image selection
-#           - Allow single and batch images
 #           - Drag and drop
 #           - Possibly some inference info (time)
 
