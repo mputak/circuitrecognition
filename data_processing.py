@@ -8,25 +8,24 @@ import itertools as it
 
 path_to_best = "best_2.pt"
 model = torch.hub.load("ultralytics/yolov5", "custom", path_to_best)
-THRESHOLD_VALUE = 120
 
 
 class Process:
-    def __init__(self, files):
+    def __init__(self, files, threshold_value):
         self.files = files
         self.images = [cv.imread(img, 0) for img in self.files]
+        self.threshold_value = threshold_value
 
         self.result = model(self.images, size=640)
         self.df = self.result.pandas().xywh  # removed [0] to have whole df in place
 
         for (image, df) in zip(self.images, self.df):  # attempt to make program work for image batches
-            ret, self.trashed = cv.threshold(image, THRESHOLD_VALUE, 255, cv.THRESH_BINARY_INV)
-            self.line_detector(self.junction_finder(df), image)  # this was not commented
+            ret, self.trashed = cv.threshold(image, self.threshold_value, 255, cv.THRESH_BINARY_INV)
+            self.line_detector(self.junction_finder(df), image)
 
         # print(self.df)
         # self.result.show()
 
-    # FIX!: - it needs to be able to input and output batches of images
     @staticmethod
     def junction_finder(df):  # new argument and made method static (please change that)
         '''Finds all junctions and outputs them in an array'''
@@ -54,9 +53,9 @@ class Process:
             cv.fillPoly(mask, [box], 255)
             masked = cv.bitwise_and(self.trashed, self.trashed, mask=mask)
             lines = (cv.HoughLinesP(masked, rho=1, theta=np.pi / 180, threshold=50, minLineLength=50, maxLineGap=1))
-
         # indent if under this to be in for loop to draw every line detection
             if lines is not None:
+                # new_empty_list_of_valid_wires.append(combination) --> after all iterations, return this list
                 for i in range(0, len(lines)):
                     l = lines[i][0]
                     cv.line(self.trashed, (l[0], l[1]), (l[2], l[3]), (255, 255, 255), 5, cv.LINE_AA)
