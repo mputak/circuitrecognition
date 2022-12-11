@@ -15,15 +15,17 @@ class Process:
         self.files = files
         self.images = [cv.imread(img, 0) for img in self.files]
         self.threshold_value = threshold_value
+        self.valid_wires = []
 
         self.result = model(self.images, size=640)
         self.df = self.result.pandas().xywh  # removed [0] to have whole df in place
+        self.df_xyxy = self.result.pandas().xyxy
 
-        for (image, df) in zip(self.images, self.df):  # attempt to make program work for image batches
+        for (image, df, df_xyxy) in zip(self.images, self.df, self.df_xyxy):  # added xyxy format for masking elements
             ret, self.trashed = cv.threshold(image, self.threshold_value, 255, cv.THRESH_BINARY_INV)
-            self.line_detector(self.junction_finder(df), image)
+            self.element_masker(image, df_xyxy)
+            # self.line_detector(self.junction_finder(df), image)
 
-        # print(self.df)
         # self.result.show()
 
     @staticmethod
@@ -33,6 +35,19 @@ class Process:
         junction_array = junctions[["xcenter", "ycenter"]].to_numpy()
 
         return junction_array.astype(int)
+
+    def element_masker(self, img, df): # new method for deleting elements
+
+        elements_array = df.to_numpy()
+        print(elements_array)
+        # all_elements = df.loc[df['class'] != 4]
+        mask = np.zeros(img.shape, dtype="uint8")
+        # array_of_elements = all_elements.to_numpy()
+
+        for row in elements_array:  # FIX!: make integers of floats
+            if row[5] != 4:
+                cv.rectangle(mask, (int(row[0]), int(row[1])), (int(row[2]), int(row[3])), (255,255,255), -1) #int dont work
+        cv.imshow("Maska ones", mask)
 
     def line_detector(self, array, img):  # I am very certain OOP doesn't work like that
         '''Masks all ROI's and finds all lines'''
@@ -56,9 +71,12 @@ class Process:
         # indent if under this to be in for loop to draw every line detection
             if lines is not None:
                 # new_empty_list_of_valid_wires.append(combination) --> after all iterations, return this list
+                self.valid_wires.append(combination)
                 for i in range(0, len(lines)):
                     l = lines[i][0]
                     cv.line(self.trashed, (l[0], l[1]), (l[2], l[3]), (255, 255, 255), 5, cv.LINE_AA)
+                    
+        # return self.valid_wires
         # testing purposes
         cv.imshow("THRASHED AND DETECTED", self.trashed)
         cv.imshow("BITWISE", masked)
