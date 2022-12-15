@@ -33,7 +33,7 @@ class MainWindow(tk.Tk):
         self.label.config(text=f"{self.files_chosen} files chosen.")
 
     def digitize(self):
-        Process(files=self.files, threshold_value=120)
+        Process(files=self.files, threshold_value=255)
 
 # TODO: Create requirements.txt that user needs to pip install!
 #       Create simple GUI for image selection

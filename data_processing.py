@@ -19,14 +19,16 @@ class Process:
 
         self.result = model(self.images, size=640)
         self.df = self.result.pandas().xywh
+        print(self.df)
         self.df_xyxy = self.result.pandas().xyxy
+        self.result.show()
 
         for (image, df, df_xyxy) in zip(self.images, self.df, self.df_xyxy):
-            ret, self.trashed = cv.threshold(image, self.threshold_value, 255, cv.THRESH_BINARY_INV)
+            self.trashed = cv.adaptiveThreshold(image, self.threshold_value, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY_INV, 11, 9)
             self.element_masker(image, df_xyxy)
             self.line_detector(self.junction_finder(df), image, padding=42)
-            self.element_detector(df)
-        self.write_to_file()
+            all_elements = self.element_detector(df)
+        self.write_to_file(all_elements)
 
     @staticmethod
     def junction_finder(df):
@@ -60,7 +62,6 @@ class Process:
             cv.fillPoly(mask, [box], 255)
             masked = cv.bitwise_and(self.trashed, self.trashed, mask=mask)
             lines = (cv.HoughLinesP(masked, rho=1, theta=np.pi / 180, threshold=50, minLineLength=70, maxLineGap=4))
-            # cv.fillPoly(self.trashed, [box], 0)
             if np.all(lines):
                 self.valid_wires.append(combination)
                 # for i in range(0, len(lines)):
@@ -72,21 +73,35 @@ class Process:
         cv.waitKey(0)
 
     def element_detector(self, df):
+        '''Finds all elements and places them on a valid wire'''
+        counter = 0
+        list_of_elements = []
         for row in df.to_numpy():
             if row[5] != 4:
+                dist_to_element = {}
                 for wire in self.valid_wires:
                     dx, dy = wire[1][0] - wire[0][0], wire[1][1] - wire[0][1]
                     det = dx * dx + dy * dy
                     a = (dy*(int(row[1]) - wire[0][1]) + dx * (int(row[0]) - wire[0][0])) / det
                     pt = (wire[0][0] + a * dx, wire[0][1] + a * dy)
-                    cv.line(self.trashed, (int(row[0]), int(row[1])), (int(pt[0]), int(pt[1])), (255, 255, 255), 10)
-        cv.imshow("element", self.trashed)
-        cv.waitKey(0)
+                    dist_to_element[pt] = math.dist(pt, (row[0], row[1]))
+                pt_on_wire = min(dist_to_element, key=dist_to_element.get)
+                if row[5] == 5:
+                    list_of_elements.append(f"SYMBOL res {round(pt_on_wire[0])} {round(pt_on_wire[1])} R{counter}\nSYMATTR InstName R1\n")
+                    counter += 1
+        # cv.imshow("element", self.trashed)
+        # cv.waitKey(0)
+        return list_of_elements
 
-    def write_to_file(self):
+    def write_to_file(self, elements):
+        '''Writes all elements and wires to an .asc output file'''
+        print(len(elements))
         fo = open("digitized_circuit.asc", "w")
         fo.write("Version 4\nSHEET 1 880 680\n")
         for wire in self.valid_wires:
             fo.write(f"WIRE {wire[0][0]} {wire[0][1]} {wire[1][0]} {wire[1][1]}\n")
-            print(wire[0][0])
+        for element in elements:
+            print(element)
+            fo.write(element)
 
+        fo.close()
