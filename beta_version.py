@@ -2,6 +2,8 @@ import torch
 import cv2 as cv
 import math
 import numpy as np
+import tkinter as tk
+from tkinter.filedialog import askopenfilename
 
 # class that has wires as object with coordinates as attributes
 class Wire:
@@ -50,20 +52,24 @@ class Wire:
         elif self.orientation == "v":
             self.x_end = self.x_start
 
-img_name = input('Type image name: ')
+
+tk.Tk().withdraw()
+print("Choose an image.")
+filename = askopenfilename()
 # model import
-model = torch.hub.load('C:/Users/Marko/PycharmProjects/zavrsni/yolov5-master', 'custom',
-                       path='C:/Users/Marko/PycharmProjects/zavrsni/best_2.pt', source='local')  # local repo
-img = cv.imread('C:/Users/Marko/Desktop/' + img_name)[..., ::-1]  # image loader
+model = torch.hub.load("yolov5-master", 'custom',
+                       path="best_2.pt", source='local')  # local repo
+img = cv.imread(filename)[..., ::-1]  # image loader
 results = model(img, size= 640)  # inference
 
 # basic txt file open for ltspice
-fo = open("C:/Users/Marko/PycharmProjects/zavrsni/ltspice_data.asc", "w")
+fo = open("ltspice_data.asc", "w")
 fo.write("Version 4\n")
 fo.write("SHEET 1 880 680\n")
 
 results.print()  # print result
-results.show()  # show or save result
+results.show()
+# results.save()# show or save result
 
 df = results.pandas().xywh[0]
 dfxyxy = results.pandas().xyxy[0]
@@ -77,6 +83,7 @@ def select_starting_point(x1, y1, x2, y2):
         return 1
     else:
         return 2
+
 
 # ground data processing
 data_ind = df.loc[df['name'] == 'inductor']
