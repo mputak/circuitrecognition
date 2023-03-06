@@ -58,7 +58,7 @@ print("Choose an image.")
 filename = askopenfilename()
 # model import
 model = torch.hub.load("yolov5-master", 'custom',
-                       path="best_2.pt", source='local')  # local repo
+                       path="best_weights.pt", source='local', force_reload=True)  # local repo
 img = cv.imread(filename)[..., ::-1]  # image loader
 results = model(img, size= 640)  # inference
 
