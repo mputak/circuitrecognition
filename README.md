@@ -18,8 +18,8 @@ To use the Circuit Recognition:
 From here the file can be opened with LTspice and the circuit can be instantly simulated or modified.
 
 ## Methodology
-- CHGD-1152 dataset containing images of hand-drawn electrical circuits was used to train a CNN model [YOLOv5-m](https://github.com/ultralytics/yolov5)
-- The model was pre-trained on COCO dataset and fully trained on CHGD-1152 dataset with positive [results](https://api.wandb.ai/links/circuitrecognition/agtiplrz).
+- Dataset with images of hand-drawn electrical circuits was used to train a CNN model [YOLOv5-m](https://github.com/ultralytics/yolov5)
+- The model was pre-trained on COCO dataset and fully trained on CHGD-1152 dataset with positive [results](https://api.wandb.ai/links/circuitrecognition/agtiplrz)
 - The new image of hand-drawn circuit serves as input to a trained model
 - Model inference is sent to necessary processing steps in order to obey LTspice netlist syntax
     - Verical/Horizontal wire alignment, junction finder, grid relocator, etc.
