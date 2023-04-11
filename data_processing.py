@@ -6,7 +6,7 @@ import pandas
 import matplotlib.pyplot as plt
 import itertools as it
 
-path_to_best = "best_2.pt"
+path_to_best = "best_weights.pt"
 model = torch.hub.load("ultralytics/yolov5", "custom", path_to_best)
 
 

@@ -35,10 +35,5 @@ class MainWindow(tk.Tk):
     def digitize(self):
         Process(files=self.files, threshold_value=255)
 
-# TODO: Create requirements.txt that user needs to pip install!
-#       Create simple GUI for image selection
-#           - Drag and drop
-#           - Possibly some inference info (time)
-
 
 MainWindow()
