@@ -26,7 +26,7 @@ class MainWindow(tk.Tk):
         self.mainloop()
 
     def choose_files(self):
-        self.files = fd.askopenfilenames(title="Choose files.")
+        self.files = fd.askopenfilenames(title="Choose files.", initialdir="/home/markoputak/Desktop/CGHD-1152/")
         self.file_button.configure(text="Digitize!", command=self.digitize)
 
         self.files_chosen = len(self.files)

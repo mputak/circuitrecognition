@@ -33,6 +33,7 @@ class Process:
         self.array = self.junction_finder(self.df[0])
         self.aligned_array = self.junction_aligner(self.array)
         print(self.element_detector(self.df[0]))
+        
         # self.result.show()
         # edge = cv.Canny(self.images[0], 100, 200, L2gradient=True)
         # contours, hierarchy = cv.findContours(edge, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
@@ -139,11 +140,17 @@ class Process:
 
     def rotate(self, wire):
         print(f"THIS IS WIRE: {wire}")
-        print(f"THIS IS VALID WIRES{self.valid_wires}")
+        print(f"THIS IS VALID WIRES{type(self.valid_wires[0][0])}")
         print(f"THIS IS VERTICAL{self.vertical_wires}")
-        if wire in self.vertical_wires:
-            return 0
+        for i in self.vertical_wires:
+            print(i)
+            if np.equal(i[0].all(), wire[0].all()) and np.equal(i[1].all(), wire[1].all()):
+                return 0
         return 90
+        # if wire in self.vertical_wires:
+        #     return 0
+        # else:
+        #     return 90
 
     def write_to_file(self, elements):
         '''Writes all elements and wires to an .asc output file'''
