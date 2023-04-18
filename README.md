@@ -25,6 +25,9 @@ From here the file can be opened with LTspice and the circuit can be instantly s
     - Verical/Horizontal wire alignment, junction finder, grid relocator, etc.
 - Output is written to a file that is readable by LTspice and ready for simulation through the software.
 
+## Example
+![Input image](/imgs/raw_img.jpg "Input image.") &#x27F6; ![Output](/imgs/end_img.png "Output LTspice file.") 
+
 ## FAQ
 
 *I'm getting an error during inference.*
