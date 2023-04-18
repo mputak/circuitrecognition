@@ -19,11 +19,12 @@ class Process:
         self.horizontal_wires = []
         self.vertical_wires = []
 
-        self.dict_of_symbols = {5:"res",
-                                6:"voltage-dc",
-                                1:"cap",
-                                3:"ind",
-                                7:"voltage-dc-ac"}
+        # element_constants.py
+        self.dict_of_symbols = {5:"res", # resistor
+                                6:"voltage",  # voltage-dc
+                                1:"cap", # capacitor-unpolarized
+                                3:"ind", # inductor
+                                7:"voltage"} # voltage-ac-dc
 
         self.result = model(self.images, size=1280)
         self.df = self.result.pandas().xywh
@@ -32,7 +33,8 @@ class Process:
         print("----------------------------")
         self.array = self.junction_finder(self.df[0])
         self.aligned_array = self.junction_aligner(self.array)
-        print(self.element_detector(self.df[0]))
+        for el in self.element_detector(self.df[0]):
+            print("\n________" + el + "\n_____________")
         
         # self.result.show()
         # edge = cv.Canny(self.images[0], 100, 200, L2gradient=True)
@@ -126,9 +128,10 @@ class Process:
                     a = (dy*(int(row[1]) - wire[0][1]) + dx * (int(row[0]) - wire[0][0])) / det
                     pt = (wire[0][0] + a * dx, wire[0][1] + a * dy)
                     dist_to_element[pt] = math.dist(pt, (row[0], row[1]))
+                    rotation = self.rotate(wire)
                 pt_on_wire = min(dist_to_element, key=dist_to_element.get)
 
-                rotation = self.rotate(wire)
+
 
                 list_of_elements.append(f"SYMBOL {self.dict_of_symbols[row[element_class]]} {round(pt_on_wire[0])} {round(pt_on_wire[1])} R{rotation}\nSYMATTR InstName R{element_counter[row[element_class]]}\n")
                 element_counter[row[element_class]] += 1
@@ -139,12 +142,8 @@ class Process:
     
 
     def rotate(self, wire):
-        print(f"THIS IS WIRE: {wire}")
-        print(f"THIS IS VALID WIRES{type(self.valid_wires[0][0])}")
-        print(f"THIS IS VERTICAL{self.vertical_wires}")
         for i in self.vertical_wires:
-            print(i)
-            if np.equal(i[0].all(), wire[0].all()) and np.equal(i[1].all(), wire[1].all()):
+            if i[0][0] == wire[0][0] and i[0][1] == wire[0][1] and i[1][0] == wire[1][0] and i[1][1] == wire[1][1]:
                 return 0
         return 90
         # if wire in self.vertical_wires:

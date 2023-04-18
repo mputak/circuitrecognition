@@ -18,6 +18,54 @@ arr = [[ 313,  484],
        [ 820,  491],
        [ 615,  896]]
 
+
+def equate_points(points):
+    # Create dictionaries to store points that are horizontally and vertically aligned
+    horizontal_points = {}
+    vertical_points = {}
+
+    # Iterate through the input points and group them based on their horizontal and vertical alignment
+    for point in points:
+        x, y = point
+
+        # Check if the point is horizontally aligned with any other points
+        for other_x, other_y in horizontal_points:
+            if abs(x - other_x) <= 50:
+                horizontal_points[other_x, other_y].append(point)
+                break
+        else:
+            horizontal_points[x, y] = [point]
+
+        # Check if the point is vertically aligned with any other points
+        for other_x, other_y in vertical_points:
+            if abs(y - other_y) <= 50:
+                vertical_points[other_x].append(point)
+                break
+        else:
+            vertical_points[x] = [point]
+
+    # Create a new list to store the equated points
+    equated_points = []
+
+    # Iterate through the horizontally aligned points and equate their x-coordinates
+    for x, y_list in horizontal_points.items():
+        min_x = min(point[0] for point in y_list)
+        for point in y_list:
+            equated_points.append((min_x, point[1]))
+
+    # Iterate through the vertically aligned points and equate their y-coordinates
+    for x, y_list in vertical_points.items():
+        min_y = min(point[1] for point in y_list)
+        for point in y_list:
+            equated_points.append((point[0], min_y))
+
+    # Add any remaining unaligned points to the equated points list
+    for point in points:
+        if point not in equated_points:
+            equated_points.append(point)
+
+    return equated_points
+
 # Extract the x and y coordinates as separate arrays
 def align(arr):
     '''
@@ -34,15 +82,17 @@ def align(arr):
                 arr[j][1] = val[1]
     return arr
 
-align(arr)
-print(arr)
-x = [point[0] for point in arr]
-y = [point[1] for point in arr]
+# align(arr)
+# print(arr)
 
-element_counter = {i: 0 for i in range(1, 10)}
-print(element_counter)
+
+# element_counter = {i: 0 for i in range(1, 10)}
+# print(element_counter)
 # Create the scatter plot
-# plt.scatter(x, y)
+eq_p = equate_points(arr)
+x = [point[0] for point in eq_p]
+y = [point[1] for point in eq_p]
+plt.scatter(x, y)
 
-# # Show the plot
-# plt.show()
+# Show the plot
+plt.show()
